@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruleta de alumnado · Color, iluminación y acabados 2D y 3D</title>
+  <style>
+    :root{
+      --bg:#f5f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
+      --border:#dbe2ea; --accent:#2563eb; --accent2:#1d4ed8;
+      --chip:#eef2ff; --danger:#b91c1c;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg); color:var(--text);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{margin-bottom:20px}
+    h1{margin:0 0 6px;font-size:clamp(24px,4vw,38px)}
+    .sub{color:var(--muted);font-size:15px}
+    .grid{display:grid;grid-template-columns:1fr 1.1fr;gap:18px}
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px;
+      box-shadow:0 4px 18px rgba(15,23,42,.05)
+    }
+    label{display:block;font-weight:700;margin-bottom:8px}
+    textarea{
+      width:100%; min-height:260px; resize:vertical; padding:14px; border-radius:12px;
+      border:1px solid var(--border); font:inherit; font-size:16px; background:#fff; color:var(--text)
+    }
+    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{
+      border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;
+      min-height:44px
+    }
+    .primary{background:var(--accent);color:white}
+    .primary:hover{background:var(--accent2)}
+    .secondary{background:#fff;border:1px solid var(--border);color:var(--text)}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .status{margin-top:10px;color:var(--muted);font-size:14px}
+    .wheel{
+      width:min(340px,78vw); aspect-ratio:1; margin:4px auto 16px; border-radius:50%;
+      border:12px solid #dbe2ea; display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(circle at center,#fff 0 38%,#eef2ff 39% 100%);
+      position:relative; overflow:hidden
+    }
+    .wheel::before{
+      content:""; position:absolute; inset:0;
+      background:conic-gradient(from 0deg,#e0e7ff 0 12.5%,#f8fafc 12.5% 25%,#dbeafe 25% 37.5%,
+      #f8fafc 37.5% 50%,#e0e7ff 50% 62.5%,#f8fafc 62.5% 75%,#dbeafe 75% 87.5%,#f8fafc 87.5% 100%);
+      opacity:.85
+    }
+    .winnerBox{
+      position:relative;z-index:2;background:rgba(255,255,255,.92);border:1px solid var(--border);
+      border-radius:16px;padding:20px;min-width:62%;text-align:center
+    }
+    .winnerLabel{color:var(--muted);font-size:14px}
+    #winner{font-size:clamp(28px,5vw,46px);font-weight:800;line-height:1.05;margin-top:6px;overflow-wrap:anywhere}
+    .spin{width:100%;font-size:18px;padding:14px}
+    .historyHead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
+    .historyHead h2{font-size:18px;margin:0}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{background:var(--chip);border:1px solid #c7d2fe;border-radius:999px;padding:7px 10px;font-size:14px}
+    .empty{color:var(--muted);font-size:14px}
+    .help{margin-top:18px;font-size:14px;color:var(--muted)}
+    .note{margin-top:18px;border-left:4px solid var(--accent);padding:10px 12px;background:#eff6ff;border-radius:8px}
+    @media (max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:14px}}
+    @media (prefers-reduced-motion:no-preference){
+      .spinfx{animation:spinfx .55s ease}
+      @keyframes spinfx{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Ruleta de alumnado</h1>
+      <div class="sub">Color, iluminación y acabados 2D y 3D · Puestas en común y microdemostraciones</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <label for="names">Lista del alumnado</label>
+        <textarea id="names" placeholder="Un nombre por línea">Ana
+Carlos
+Lucía
+Marcos
+Sara</textarea>
+        <div class="buttons">
+          <button class="primary" id="loadBtn" type="button">Cargar lista</button>
+          <button class="secondary" id="resetBtn" type="button">Reiniciar ronda</button>
+        </div>
+        <div class="status" id="status">5 disponibles de 5</div>
+
+        <div class="note">
+          Consejo: plantea primero la pregunta o demostración y después pulsa <strong>Sortear</strong>.
+          Así todo el grupo tiene que pensar la respuesta.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="wheel" id="wheel" aria-live="polite">
+          <div class="winnerBox">
+            <div class="winnerLabel">Seleccionado/a</div>
+            <div id="winner">—</div>
+          </div>
+        </div>
+        <button class="primary spin" id="spinBtn" type="button">Sortear</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <div class="historyHead">
+        <h2>Ya han salido</h2>
+        <div class="status" id="round">Ronda 1</div>
+      </div>
+      <div class="chips" id="history"><span class="empty">Todavía nadie.</span></div>
+    </section>
+
+    <p class="help">
+      Los nombres seleccionados no se repiten dentro de la misma ronda. Cuando todos hayan salido,
+      pulsa «Reiniciar ronda». Este archivo funciona sin Internet y no muestra publicidad.
+    </p>
+  </main>
+
+  <script>
+    (() => {
+      const namesEl = document.getElementById('names');
+      const loadBtn = document.getElementById('loadBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const spinBtn = document.getElementById('spinBtn');
+      const winnerEl = document.getElementById('winner');
+      const statusEl = document.getElementById('status');
+      const historyEl = document.getElementById('history');
+      const roundEl = document.getElementById('round');
+      const wheelEl = document.getElementById('wheel');
+
+      let all = [];
+      let remaining = [];
+      let history = [];
+      let round = 1;
+
+      function parseNames(){
+        return namesEl.value
+          .split(/\n|,/)
+          .map(n => n.trim())
+          .filter(Boolean)
+          .slice(0, 300);
+      }
+
+      function unique(list){
+        return [...new Set(list)];
+      }
+
+      function render(){
+        statusEl.textContent = `${remaining.length} disponibles de ${all.length}`;
+        roundEl.textContent = `Ronda ${round}`;
+        spinBtn.disabled = remaining.length === 0;
+
+        if(history.length === 0){
+          historyEl.innerHTML = '<span class="empty">Todavía nadie.</span>';
+        }else{
+          historyEl.innerHTML = '';
+          history.forEach(name => {
+            const span = document.createElement('span');
+            span.className = 'chip';
+            span.textContent = name;
+            historyEl.appendChild(span);
+          });
+        }
+      }
+
+      function loadList(){
+        const parsed = unique(parseNames());
+        if(parsed.length === 0){
+          winnerEl.textContent = 'Añade nombres';
+          all = []; remaining = []; history = [];
+          render();
+          return;
+        }
+        all = parsed;
+        remaining = [...all];
+        history = [];
+        round = 1;
+        winnerEl.textContent = '—';
+        render();
+      }
+
+      function spin(){
+        if(remaining.length === 0) return;
+
+        const index = Math.floor(Math.random() * remaining.length);
+        const chosen = remaining.splice(index, 1)[0];
+        history.push(chosen);
+
+        wheelEl.classList.remove('spinfx');
+        void wheelEl.offsetWidth;
+        wheelEl.classList.add('spinfx');
+
+        setTimeout(() => {
+          winnerEl.textContent = chosen;
+          render();
+        }, 180);
+      }
+
+      function resetRound(){
+        if(all.length === 0){
+          loadList();
+          return;
+        }
+        remaining = [...all];
+        history = [];
+        round += 1;
+        winnerEl.textContent = '—';
+        render();
+      }
+
+      loadBtn.addEventListener('click', loadList);
+      resetBtn.addEventListener('click', resetRound);
+      spinBtn.addEventListener('click', spin);
+
+      loadList();
+    })();
+  </script>
+</body>
+</html>
