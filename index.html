@@ -41,9 +41,12 @@ textarea{width:100%;min-height:250px;padding:12px;border:1px solid #bcc4ce;borde
 <button id="load" class="primary" type="button">Cargar / actualizar lista</button>
 <button id="restart" class="secondary" type="button">Reiniciar sorteo</button>
 <button id="clear" class="secondary" type="button">Borrar lista</button>
+<button id="exportState" class="secondary" type="button">💾 Guardar estado</button>
+<button id="importState" class="secondary" type="button">📂 Cargar estado</button>
+<input id="stateFile" type="file" accept=".json,application/json" hidden>
 </div>
 <div id="status" class="status">No hay alumnado cargado.</div>
-<div class="tip">Los seleccionados quedan guardados en este navegador. <strong>Reiniciar sorteo</strong> conserva el grupo pero permite que vuelvan a salir. <strong>Borrar lista</strong> elimina todo.</div>
+<div class="tip">La ruleta se guarda automáticamente en este navegador. Para conservarla aunque cambies de equipo o se borre el perfil, usa <strong>Guardar estado</strong> y conserva el archivo JSON en una ubicación segura. Después podrás recuperarlo con <strong>Cargar estado</strong>.</div>
 </section>
 
 <section class="card">
@@ -62,7 +65,8 @@ textarea{width:100%;min-height:250px;padding:12px;border:1px solid #bcc4ce;borde
 (function(){
 const KEY='ruleta_alumnado_independiente_v1', SOUND='ruleta_alumnado_sonido_v1';
 const names=document.getElementById('names'), load=document.getElementById('load'), restart=document.getElementById('restart'),
-clear=document.getElementById('clear'), spin=document.getElementById('spin'), sound=document.getElementById('sound'),
+clear=document.getElementById('clear'), exportState=document.getElementById('exportState'), importState=document.getElementById('importState'),
+stateFile=document.getElementById('stateFile'), spin=document.getElementById('spin'), sound=document.getElementById('sound'),
 winner=document.getElementById('winner'), status=document.getElementById('status'), history=document.getElementById('history'),
 counter=document.getElementById('counter'), wheel=document.getElementById('wheel');
 let data={all:[],remaining:[],used:[],last:''}, soundOn=localStorage.getItem(SOUND)!=='0', busy=false, angle=0, ctx=null;
@@ -73,7 +77,7 @@ function restore(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array
 function render(){
  winner.textContent=data.last||'—'; status.textContent=data.all.length?`${data.remaining.length} disponibles de ${data.all.length}`:'No hay alumnado cargado.';
  counter.textContent=`${data.used.length} / ${data.all.length}`; spin.disabled=busy||!data.remaining.length; spin.style.opacity=spin.disabled?'.45':'1';
- load.disabled=restart.disabled=clear.disabled=busy; history.innerHTML='';
+ load.disabled=restart.disabled=clear.disabled=exportState.disabled=importState.disabled=busy; history.innerHTML='';
  if(!data.used.length){history.innerHTML='<span class="empty">Todavía nadie.</span>'}
  else{const ol=document.createElement('ol');data.used.forEach(n=>{const li=document.createElement('li');li.textContent=n;ol.appendChild(li)});history.appendChild(ol)}
  sound.textContent=soundOn?'🔊 Sonido':'🔇 Silencio';
@@ -83,6 +87,39 @@ function beep(f,d,v,delay=0){const c=audio();if(!c)return;const t=c.currentTime+
 load.onclick=()=>{const a=parse(names.value);data={all:[...a],remaining:[...a],used:[],last:''};save();render()};
 restart.onclick=()=>{data.remaining=[...data.all];data.used=[];data.last='';save();render()};
 clear.onclick=()=>{data={all:[],remaining:[],used:[],last:''};names.value='';save();render()};
+exportState.onclick=()=>{
+ const payload={
+   version:1,
+   app:'ruleta-alumnado',
+   savedAt:new Date().toISOString(),
+   data:{all:[...data.all],remaining:[...data.remaining],used:[...data.used],last:data.last||''}
+ };
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob), a=document.createElement('a');
+ const d=new Date(), pad=n=>String(n).padStart(2,'0');
+ a.href=url;
+ a.download=`ruleta_estado_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+importState.onclick=()=>{stateFile.value='';stateFile.click()};
+stateFile.onchange=()=>{
+ const file=stateFile.files&&stateFile.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const p=JSON.parse(reader.result), d=p&&p.data?p.data:p;
+     if(!d||!Array.isArray(d.all)||!Array.isArray(d.remaining)||!Array.isArray(d.used))throw new Error();
+     const all=d.all.map(String), remaining=d.remaining.map(String), used=d.used.map(String);
+     const valid=new Set(all);
+     if(!all.length && (remaining.length||used.length))throw new Error();
+     if(remaining.some(n=>!valid.has(n))||used.some(n=>!valid.has(n)))throw new Error();
+     data={all,remaining,used,last:typeof d.last==='string'?d.last:''};
+     names.value=data.all.join('\n');save();render();
+     status.textContent=`Estado cargado: ${data.remaining.length} disponibles de ${data.all.length}`;
+   }catch(e){alert('No se ha podido cargar el archivo. Selecciona un estado JSON generado por esta ruleta.')}
+ };
+ reader.readAsText(file,'utf-8');
+};
 sound.onclick=()=>{soundOn=!soundOn;localStorage.setItem(SOUND,soundOn?'1':'0');render();if(soundOn)beep(740,.09,.035)};
 spin.onclick=()=>{
  if(busy||!data.remaining.length)return;busy=true;winner.textContent='...';render();audio();
