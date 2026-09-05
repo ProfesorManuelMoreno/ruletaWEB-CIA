@@ -1,227 +1,99 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ruleta de alumnado · Color, iluminación y acabados 2D y 3D</title>
-  <style>
-    :root{
-      --bg:#f5f7fb; --card:#ffffff; --text:#1f2937; --muted:#6b7280;
-      --border:#dbe2ea; --accent:#2563eb; --accent2:#1d4ed8;
-      --chip:#eef2ff; --danger:#b91c1c;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:var(--bg); color:var(--text);
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:24px}
-    header{margin-bottom:20px}
-    h1{margin:0 0 6px;font-size:clamp(24px,4vw,38px)}
-    .sub{color:var(--muted);font-size:15px}
-    .grid{display:grid;grid-template-columns:1fr 1.1fr;gap:18px}
-    .card{
-      background:var(--card); border:1px solid var(--border); border-radius:18px; padding:18px;
-      box-shadow:0 4px 18px rgba(15,23,42,.05)
-    }
-    label{display:block;font-weight:700;margin-bottom:8px}
-    textarea{
-      width:100%; min-height:260px; resize:vertical; padding:14px; border-radius:12px;
-      border:1px solid var(--border); font:inherit; font-size:16px; background:#fff; color:var(--text)
-    }
-    .buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    button{
-      border:0;border-radius:12px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;
-      min-height:44px
-    }
-    .primary{background:var(--accent);color:white}
-    .primary:hover{background:var(--accent2)}
-    .secondary{background:#fff;border:1px solid var(--border);color:var(--text)}
-    button:disabled{opacity:.45;cursor:not-allowed}
-    .status{margin-top:10px;color:var(--muted);font-size:14px}
-    .wheel{
-      width:min(340px,78vw); aspect-ratio:1; margin:4px auto 16px; border-radius:50%;
-      border:12px solid #dbe2ea; display:flex;align-items:center;justify-content:center;
-      background:radial-gradient(circle at center,#fff 0 38%,#eef2ff 39% 100%);
-      position:relative; overflow:hidden
-    }
-    .wheel::before{
-      content:""; position:absolute; inset:0;
-      background:conic-gradient(from 0deg,#e0e7ff 0 12.5%,#f8fafc 12.5% 25%,#dbeafe 25% 37.5%,
-      #f8fafc 37.5% 50%,#e0e7ff 50% 62.5%,#f8fafc 62.5% 75%,#dbeafe 75% 87.5%,#f8fafc 87.5% 100%);
-      opacity:.85
-    }
-    .winnerBox{
-      position:relative;z-index:2;background:rgba(255,255,255,.92);border:1px solid var(--border);
-      border-radius:16px;padding:20px;min-width:62%;text-align:center
-    }
-    .winnerLabel{color:var(--muted);font-size:14px}
-    #winner{font-size:clamp(28px,5vw,46px);font-weight:800;line-height:1.05;margin-top:6px;overflow-wrap:anywhere}
-    .spin{width:100%;font-size:18px;padding:14px}
-    .historyHead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
-    .historyHead h2{font-size:18px;margin:0}
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{background:var(--chip);border:1px solid #c7d2fe;border-radius:999px;padding:7px 10px;font-size:14px}
-    .empty{color:var(--muted);font-size:14px}
-    .help{margin-top:18px;font-size:14px;color:var(--muted)}
-    .note{margin-top:18px;border-left:4px solid var(--accent);padding:10px 12px;background:#eff6ff;border-radius:8px}
-    @media (max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:14px}}
-    @media (prefers-reduced-motion:no-preference){
-      .spinfx{animation:spinfx .55s ease}
-      @keyframes spinfx{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ruleta de alumnado</title>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--text:#202124;--muted:#667085;--border:#d7dce2;--blue:#1769aa;--blue2:#0f568e}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+main{max-width:1050px;margin:auto;padding:24px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+h1{margin:0;font-size:34px}.sub{color:var(--muted);margin-top:5px}
+button{min-height:44px;border-radius:9px;padding:10px 15px;font:inherit;font-weight:700;cursor:pointer}
+.primary{border:0;background:var(--blue);color:#fff}.primary:hover{background:var(--blue2)}
+.secondary{border:1px solid #bcc4ce;background:#fff;color:var(--text)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px}
+textarea{width:100%;min-height:250px;padding:12px;border:1px solid #bcc4ce;border-radius:9px;font:inherit;font-size:16px;resize:vertical}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}.status{color:var(--muted);font-size:14px;margin-top:10px}
+.wheel{width:min(340px,80vw);aspect-ratio:1;margin:2px auto 16px;border-radius:50%;border:11px solid #dfe5ec;display:flex;align-items:center;justify-content:center;position:relative;background:conic-gradient(#d9e9fb 0 45deg,#f7f9fb 45deg 90deg,#e8eef6 90deg 135deg,#f7f9fb 135deg 180deg,#d9e9fb 180deg 225deg,#f7f9fb 225deg 270deg,#e8eef6 270deg 315deg,#f7f9fb 315deg 360deg)}
+.pointer{position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--blue);z-index:3}
+.result{position:relative;z-index:2;background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:14px;padding:20px;min-width:68%;text-align:center}.label{font-size:14px;color:var(--muted)}#winner{font-size:38px;font-weight:800;margin-top:7px;word-break:break-word}
+.spin{width:100%;font-size:19px;padding:14px}
+.history{margin-top:18px}.history-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:8px}
+.history h2{margin:0;font-size:22px}ol{margin:0;padding-left:34px}li{padding:9px 6px;border-bottom:1px solid #edf0f3;font-size:16px}li:last-child{border-bottom:0}.empty{color:var(--muted);font-size:14px}
+.tip{margin-top:14px;padding:11px 13px;background:#eef6ff;border-left:4px solid var(--blue);border-radius:7px;font-size:14px;line-height:1.45}
+@media(max-width:760px){main{padding:14px}.grid{grid-template-columns:1fr}h1{font-size:28px}}
+</style>
 </head>
 <body>
-  <main class="wrap">
-    <header>
-      <h1>Ruleta de alumnado</h1>
-      <div class="sub">Color, iluminación y acabados 2D y 3D · Puestas en común y microdemostraciones</div>
-    </header>
+<main>
+<header>
+  <div><h1>Ruleta de alumnado</h1><div class="sub">Puesta en común y microdemostraciones</div></div>
+  <button id="sound" class="secondary" type="button">🔊 Sonido</button>
+</header>
 
-    <section class="grid">
-      <div class="card">
-        <label for="names">Lista del alumnado</label>
-        <textarea id="names" placeholder="Un nombre por línea">Ana
-Carlos
-Lucía
-Marcos
-Sara</textarea>
-        <div class="buttons">
-          <button class="primary" id="loadBtn" type="button">Cargar lista</button>
-          <button class="secondary" id="resetBtn" type="button">Reiniciar ronda</button>
-        </div>
-        <div class="status" id="status">5 disponibles de 5</div>
+<div class="grid">
+<section class="card">
+<label for="names"><strong>Lista del alumnado</strong></label>
+<textarea id="names" placeholder="Escribe o pega un nombre por línea"></textarea>
+<div class="actions">
+<button id="load" class="primary" type="button">Cargar / actualizar lista</button>
+<button id="restart" class="secondary" type="button">Reiniciar sorteo</button>
+<button id="clear" class="secondary" type="button">Borrar lista</button>
+</div>
+<div id="status" class="status">No hay alumnado cargado.</div>
+<div class="tip">Los seleccionados quedan guardados en este navegador. <strong>Reiniciar sorteo</strong> conserva el grupo pero permite que vuelvan a salir. <strong>Borrar lista</strong> elimina todo.</div>
+</section>
 
-        <div class="note">
-          Consejo: plantea primero la pregunta o demostración y después pulsa <strong>Sortear</strong>.
-          Así todo el grupo tiene que pensar la respuesta.
-        </div>
-      </div>
+<section class="card">
+<div id="wheel" class="wheel"><div class="pointer"></div><div class="result"><div class="label">Seleccionado/a</div><div id="winner">—</div></div></div>
+<button id="spin" class="primary spin" type="button">🎲 Sortear</button>
+</section>
+</div>
 
-      <div class="card">
-        <div class="wheel" id="wheel" aria-live="polite">
-          <div class="winnerBox">
-            <div class="winnerLabel">Seleccionado/a</div>
-            <div id="winner">—</div>
-          </div>
-        </div>
-        <button class="primary spin" id="spinBtn" type="button">Sortear</button>
-      </div>
-    </section>
+<section class="card history">
+<div class="history-head"><h2>Ya han salido</h2><strong id="counter">0 / 0</strong></div>
+<div id="history"><span class="empty">Todavía nadie.</span></div>
+</section>
+</main>
 
-    <section class="card" style="margin-top:18px">
-      <div class="historyHead">
-        <h2>Ya han salido</h2>
-        <div class="status" id="round">Ronda 1</div>
-      </div>
-      <div class="chips" id="history"><span class="empty">Todavía nadie.</span></div>
-    </section>
+<script>
+(function(){
+const KEY='ruleta_alumnado_independiente_v1', SOUND='ruleta_alumnado_sonido_v1';
+const names=document.getElementById('names'), load=document.getElementById('load'), restart=document.getElementById('restart'),
+clear=document.getElementById('clear'), spin=document.getElementById('spin'), sound=document.getElementById('sound'),
+winner=document.getElementById('winner'), status=document.getElementById('status'), history=document.getElementById('history'),
+counter=document.getElementById('counter'), wheel=document.getElementById('wheel');
+let data={all:[],remaining:[],used:[],last:''}, soundOn=localStorage.getItem(SOUND)!=='0', busy=false, angle=0, ctx=null;
 
-    <p class="help">
-      Los nombres seleccionados no se repiten dentro de la misma ronda. Cuando todos hayan salido,
-      pulsa «Reiniciar ronda». Este archivo funciona sin Internet y no muestra publicidad.
-    </p>
-  </main>
-
-  <script>
-    (() => {
-      const namesEl = document.getElementById('names');
-      const loadBtn = document.getElementById('loadBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const spinBtn = document.getElementById('spinBtn');
-      const winnerEl = document.getElementById('winner');
-      const statusEl = document.getElementById('status');
-      const historyEl = document.getElementById('history');
-      const roundEl = document.getElementById('round');
-      const wheelEl = document.getElementById('wheel');
-
-      let all = [];
-      let remaining = [];
-      let history = [];
-      let round = 1;
-
-      function parseNames(){
-        return namesEl.value
-          .split(/\n|,/)
-          .map(n => n.trim())
-          .filter(Boolean)
-          .slice(0, 300);
-      }
-
-      function unique(list){
-        return [...new Set(list)];
-      }
-
-      function render(){
-        statusEl.textContent = `${remaining.length} disponibles de ${all.length}`;
-        roundEl.textContent = `Ronda ${round}`;
-        spinBtn.disabled = remaining.length === 0;
-
-        if(history.length === 0){
-          historyEl.innerHTML = '<span class="empty">Todavía nadie.</span>';
-        }else{
-          historyEl.innerHTML = '';
-          history.forEach(name => {
-            const span = document.createElement('span');
-            span.className = 'chip';
-            span.textContent = name;
-            historyEl.appendChild(span);
-          });
-        }
-      }
-
-      function loadList(){
-        const parsed = unique(parseNames());
-        if(parsed.length === 0){
-          winnerEl.textContent = 'Añade nombres';
-          all = []; remaining = []; history = [];
-          render();
-          return;
-        }
-        all = parsed;
-        remaining = [...all];
-        history = [];
-        round = 1;
-        winnerEl.textContent = '—';
-        render();
-      }
-
-      function spin(){
-        if(remaining.length === 0) return;
-
-        const index = Math.floor(Math.random() * remaining.length);
-        const chosen = remaining.splice(index, 1)[0];
-        history.push(chosen);
-
-        wheelEl.classList.remove('spinfx');
-        void wheelEl.offsetWidth;
-        wheelEl.classList.add('spinfx');
-
-        setTimeout(() => {
-          winnerEl.textContent = chosen;
-          render();
-        }, 180);
-      }
-
-      function resetRound(){
-        if(all.length === 0){
-          loadList();
-          return;
-        }
-        remaining = [...all];
-        history = [];
-        round += 1;
-        winnerEl.textContent = '—';
-        render();
-      }
-
-      loadBtn.addEventListener('click', loadList);
-      resetBtn.addEventListener('click', resetRound);
-      spinBtn.addEventListener('click', spin);
-
-      loadList();
-    })();
-  </script>
+function parse(v){const seen=new Set();return v.split(/\r?\n|,/).map(x=>x.trim()).filter(x=>x&&!seen.has(x)&&seen.add(x)).slice(0,300)}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function restore(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.all)&&Array.isArray(d.remaining)&&Array.isArray(d.used)){data=d;names.value=d.all.join('\n')}}catch(e){}}
+function render(){
+ winner.textContent=data.last||'—'; status.textContent=data.all.length?`${data.remaining.length} disponibles de ${data.all.length}`:'No hay alumnado cargado.';
+ counter.textContent=`${data.used.length} / ${data.all.length}`; spin.disabled=busy||!data.remaining.length; spin.style.opacity=spin.disabled?'.45':'1';
+ load.disabled=restart.disabled=clear.disabled=busy; history.innerHTML='';
+ if(!data.used.length){history.innerHTML='<span class="empty">Todavía nadie.</span>'}
+ else{const ol=document.createElement('ol');data.used.forEach(n=>{const li=document.createElement('li');li.textContent=n;ol.appendChild(li)});history.appendChild(ol)}
+ sound.textContent=soundOn?'🔊 Sonido':'🔇 Silencio';
+}
+function audio(){if(!soundOn)return null;try{if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();return ctx}catch(e){return null}}
+function beep(f,d,v,delay=0){const c=audio();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.frequency.value=f;o.connect(g);g.connect(c.destination);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.02)}
+load.onclick=()=>{const a=parse(names.value);data={all:[...a],remaining:[...a],used:[],last:''};save();render()};
+restart.onclick=()=>{data.remaining=[...data.all];data.used=[];data.last='';save();render()};
+clear.onclick=()=>{data={all:[],remaining:[],used:[],last:''};names.value='';save();render()};
+sound.onclick=()=>{soundOn=!soundOn;localStorage.setItem(SOUND,soundOn?'1':'0');render();if(soundOn)beep(740,.09,.035)};
+spin.onclick=()=>{
+ if(busy||!data.remaining.length)return;busy=true;winner.textContent='...';render();audio();
+ const idx=Math.floor(Math.random()*data.remaining.length), chosen=data.remaining[idx], start=performance.now(), duration=2600, from=angle, to=from+(5+Math.floor(Math.random()*3))*360+60+Math.random()*240;let tick=0;
+ function frame(now){const t=Math.min(1,(now-start)/duration),e=1-Math.pow(1-t,3),a=from+(to-from)*e;wheel.style.transform=`rotate(${a}deg)`;
+ if(now-tick>65+t*190){beep(520,.045,.035);tick=now}
+ if(t<1)requestAnimationFrame(frame);else{angle=to%360;data.remaining.splice(idx,1);data.used.push(chosen);data.last=chosen;save();busy=false;beep(660,.14,.055);beep(880,.18,.05,.11);render()}}
+ requestAnimationFrame(frame);
+};
+restore();render();
+})();
+</script>
 </body>
 </html>
